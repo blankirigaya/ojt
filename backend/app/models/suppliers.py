@@ -1,90 +1,33 @@
 """
-Supplier CRUD endpoints.
+Supplier model - tracks product vendors.
 """
 import uuid
-import math
-from fastapi import APIRouter, Query
-from app.api.deps import DbSession, CurrentUser, ManagerUser
-from app.services.supplier_service import SupplierService
-from app.schemas.product import SupplierCreate, SupplierUpdate, SupplierResponse
-from app.schemas.base import PaginationParams, PaginatedResponse, MessageResponse
+from sqlalchemy import String, Text, Boolean
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import UUID
 
-router = APIRouter(prefix="/suppliers", tags=["Suppliers"])
+from app.db.session import Base
+from app.models.mixins import TimestampMixin
 
 
-@router.post(
-    "",
-    response_model=SupplierResponse,
-    status_code=201,
-    summary="Create a new supplier",
-)
-async def create_supplier(
-    data: SupplierCreate,
-    db: DbSession,
-    _: ManagerUser,
-):
-    return await SupplierService(db).create(data)
+class Supplier(Base, TimestampMixin):
+    __tablename__ = "suppliers"
 
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    name: Mapped[str] = mapped_column(String(200), unique=True, nullable=False, index=True)
+    contact_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    address: Mapped[str | None] = mapped_column(Text, nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-@router.get(
-    "",
-    response_model=PaginatedResponse[SupplierResponse],
-    summary="List all suppliers (paginated)",
-)
-async def list_suppliers(
-    db: DbSession,
-    _: CurrentUser,
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    active_only: bool = Query(True),
-):
-    pagination = PaginationParams(page=page, page_size=page_size)
-    items, total = await SupplierService(db).list_all(pagination, active_only)
-    return PaginatedResponse(
-        items=items,
-        total=total,
-        page=page,
-        page_size=page_size,
-        pages=math.ceil(total / page_size) if total else 0,
+    # Relationships
+    products: Mapped[list["Product"]] = relationship(  # noqa: F821
+        "Product", back_populates="supplier", lazy="select"
     )
 
-
-@router.get(
-    "/{supplier_id}",
-    response_model=SupplierResponse,
-    summary="Get a supplier by ID",
-)
-async def get_supplier(
-    supplier_id: uuid.UUID,
-    db: DbSession,
-    _: CurrentUser,
-):
-    return await SupplierService(db).get_by_id(supplier_id)
-
-
-@router.patch(
-    "/{supplier_id}",
-    response_model=SupplierResponse,
-    summary="Update a supplier",
-)
-async def update_supplier(
-    supplier_id: uuid.UUID,
-    data: SupplierUpdate,
-    db: DbSession,
-    _: ManagerUser,
-):
-    return await SupplierService(db).update(supplier_id, data)
-
-
-@router.delete(
-    "/{supplier_id}",
-    response_model=MessageResponse,
-    summary="Soft-delete a supplier",
-)
-async def delete_supplier(
-    supplier_id: uuid.UUID,
-    db: DbSession,
-    _: ManagerUser,
-):
-    await SupplierService(db).delete(supplier_id)
-    return MessageResponse(message="Supplier deactivated successfully")
+    def __repr__(self) -> str:
+        return f"<Supplier id={self.id} name={self.name}>"

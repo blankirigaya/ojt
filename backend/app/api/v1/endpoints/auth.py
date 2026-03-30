@@ -1,53 +1,49 @@
 """
-Authentication Pydantic schemas.
+Authentication endpoints: register, login, refresh, me.
 """
-import uuid
-from pydantic import BaseModel, EmailStr, field_validator
-from app.models.user import UserRole
-from app.schemas.base import BaseSchema
+from fastapi import APIRouter
+from app.api.deps import DbSession, CurrentUser
+from app.services.auth_service import AuthService
+from app.schemas.auth import (
+    RegisterRequest, LoginRequest, TokenResponse, UserResponse,
+)
+from app.schemas.base import MessageResponse
+
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-class RegisterRequest(BaseModel):
-    email: EmailStr
-    full_name: str
-    password: str
-    role: UserRole = UserRole.VIEWER
-
-    @field_validator("password")
-    @classmethod
-    def password_strength(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
-        return v
-
-    @field_validator("full_name")
-    @classmethod
-    def name_not_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("Full name cannot be blank")
-        return v.strip()
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    status_code=201,
+    summary="Register a new user account",
+)
+async def register(data: RegisterRequest, db: DbSession):
+    return await AuthService(db).register(data)
 
 
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    summary="Login and receive JWT tokens",
+)
+async def login(data: LoginRequest, db: DbSession):
+    return await AuthService(db).login(data)
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "bearer"
+@router.post(
+    "/refresh",
+    response_model=TokenResponse,
+    summary="Obtain a new access token using a refresh token",
+)
+async def refresh_token(refresh_token: str, db: DbSession):
+    return await AuthService(db).refresh_token(refresh_token)
 
 
-class TokenPayload(BaseModel):
-    sub: str
-    type: str
-
-
-class UserResponse(BaseSchema):
-    id: uuid.UUID
-    email: str
-    full_name: str
-    role: UserRole
-    is_active: bool
-    is_verified: bool
+@router.get(
+    "/me",
+    response_model=UserResponse,
+    summary="Get the currently authenticated user",
+)
+async def me(current_user: CurrentUser):
+    return UserResponse.model_validate(current_user)

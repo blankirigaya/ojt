@@ -1,91 +1,29 @@
 """
-Category CRUD endpoints.
+Product category model.
 """
 import uuid
-from typing import Optional
-from fastapi import APIRouter, Query
-from app.api.deps import DbSession, CurrentUser, ManagerUser
-from app.services.category_service import CategoryService
-from app.schemas.product import CategoryCreate, CategoryUpdate, CategoryResponse
-from app.schemas.base import PaginationParams, PaginatedResponse, MessageResponse
-import math
+from sqlalchemy import String, Text, Boolean
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import UUID
 
-router = APIRouter(prefix="/categories", tags=["Categories"])
+from app.db.session import Base
+from app.models.mixins import TimestampMixin
 
 
-@router.post(
-    "",
-    response_model=CategoryResponse,
-    status_code=201,
-    summary="Create a new category",
-)
-async def create_category(
-    data: CategoryCreate,
-    db: DbSession,
-    _: ManagerUser,
-):
-    return await CategoryService(db).create(data)
+class Category(Base, TimestampMixin):
+    __tablename__ = "categories"
 
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-@router.get(
-    "",
-    response_model=PaginatedResponse[CategoryResponse],
-    summary="List all categories (paginated)",
-)
-async def list_categories(
-    db: DbSession,
-    _: CurrentUser,
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    active_only: bool = Query(True),
-):
-    pagination = PaginationParams(page=page, page_size=page_size)
-    items, total = await CategoryService(db).list_all(pagination, active_only)
-    return PaginatedResponse(
-        items=items,
-        total=total,
-        page=page,
-        page_size=page_size,
-        pages=math.ceil(total / page_size) if total else 0,
+    # Relationships
+    products: Mapped[list["Product"]] = relationship(  # noqa: F821
+        "Product", back_populates="category", lazy="select"
     )
 
-
-@router.get(
-    "/{category_id}",
-    response_model=CategoryResponse,
-    summary="Get a category by ID",
-)
-async def get_category(
-    category_id: uuid.UUID,
-    db: DbSession,
-    _: CurrentUser,
-):
-    return await CategoryService(db).get_by_id(category_id)
-
-
-@router.patch(
-    "/{category_id}",
-    response_model=CategoryResponse,
-    summary="Update a category",
-)
-async def update_category(
-    category_id: uuid.UUID,
-    data: CategoryUpdate,
-    db: DbSession,
-    _: ManagerUser,
-):
-    return await CategoryService(db).update(category_id, data)
-
-
-@router.delete(
-    "/{category_id}",
-    response_model=MessageResponse,
-    summary="Soft-delete a category",
-)
-async def delete_category(
-    category_id: uuid.UUID,
-    db: DbSession,
-    _: ManagerUser,
-):
-    await CategoryService(db).delete(category_id)
-    return MessageResponse(message="Category deactivated successfully")
+    def __repr__(self) -> str:
+        return f"<Category id={self.id} name={self.name}>"

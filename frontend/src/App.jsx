@@ -58,7 +58,7 @@ export default function App() {
             fontFamily: '"JetBrains Mono", monospace',
             fontSize: '12px',
           },
-          success: { iconTheme: { primary: '#FBBF24', secondary: '#080A0E' } },
+          success: { iconTheme: { primary: '2596be', secondary: '#080A0E' } },
           error:   { iconTheme: { primary: '#EF4444', secondary: '#080A0E' } },
         }}
       />

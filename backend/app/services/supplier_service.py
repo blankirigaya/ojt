@@ -6,7 +6,7 @@ from typing import List, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
-from app.models.supplier import Supplier
+from app.models.suppliers import Supplier
 from app.schemas.product import SupplierCreate, SupplierUpdate, SupplierResponse
 from app.schemas.base import PaginationParams
 from app.core.exceptions import NotFoundException, ConflictException

@@ -1,9 +1,11 @@
-"""
-FastAPI application factory.
-Configures middleware, exception handlers, lifespan, and registers all routers.
-"""
+# """
+# FastAPI application factory.
+# Configures middleware, exception handlers, lifespan, and registers all routers.
+# """
 import logging
 from contextlib import asynccontextmanager
+
+# from fastapi import FastAPI
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,7 +40,6 @@ async def lifespan(app: FastAPI):
 
     logger.info("🛑 Shutting down")
 
-
 # ── App factory ───────────────────────────────────────────────────────────────
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -70,6 +71,10 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
+        import traceback
+        with open("C:/tmp/api_error.log", "w") as f:
+            f.write(traceback.format_exc())
+            f.write(str(exc))
         logger.exception("Unhandled exception on %s %s", request.method, request.url)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -79,12 +84,11 @@ def create_app() -> FastAPI:
     # ── Routers ───────────────────────────────────────────────────────────────
     app.include_router(api_router, prefix=settings.API_V1_STR)
 
-    # ── Health check ──────────────────────────────────────────────────────────
-    @app.get("/health", tags=["Health"])
-    async def health():
-        return {"status": "ok", "version": settings.APP_VERSION}
-
     return app
 
-
 app = create_app()
+
+# ── Health check ──────────────────────────────────────────────────────────
+@app.get("/", tags=["Health"])
+def health():
+    return {"status": "ok"}

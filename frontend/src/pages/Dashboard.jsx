@@ -117,8 +117,8 @@ export default function Dashboard() {
             <AreaChart data={salesData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
               <defs>
                 <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FBBF24" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#FBBF24" stopOpacity={0} />
+                  <stop offset="5%" stopColor="2596be" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="2596be" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#1E2533" vertical={false} />
@@ -141,7 +141,7 @@ export default function Dashboard() {
                 type="monotone"
                 dataKey="revenue"
                 name="Revenue"
-                stroke="#FBBF24"
+                stroke="2596be"
                 strokeWidth={2}
                 fill="url(#revenueGrad)"
                 dot={false}
@@ -163,7 +163,7 @@ export default function Dashboard() {
               />
               <YAxis hide />
               <Tooltip content={<ChartTooltip />} />
-              <Bar dataKey="units" name="Units" fill="#3D4F6B" radius={[2, 2, 0, 0]} activeBar={{ fill: '#FBBF24' }} />
+              <Bar dataKey="units" name="Units" fill="#3D4F6B" radius={[2, 2, 0, 0]} activeBar={{ fill: '2596be' }} />
             </BarChart>
           </ResponsiveContainer>
         </SectionCard>

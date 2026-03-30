@@ -2,8 +2,8 @@
  * ProtectedRoute — redirects to /login if user is not authenticated.
  */
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { Spinner } from '../components/ui'
+import { useAuth } from '../../context/AuthContext'
+import { Spinner } from '../ui'
 
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()

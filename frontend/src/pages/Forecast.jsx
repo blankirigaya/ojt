@@ -185,8 +185,8 @@ export default function Forecast() {
               <ComposedChart data={chartData} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
                 <defs>
                   <linearGradient id="forecastBand" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#FBBF24" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#FBBF24" stopOpacity={0.02} />
+                    <stop offset="5%"  stopColor="2596be" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="2596be" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1E2533" vertical={false} />
@@ -227,10 +227,10 @@ export default function Forecast() {
                   type="monotone"
                   dataKey="forecast"
                   name="Forecast"
-                  stroke="#FBBF24"
+                  stroke="2596be"
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 4, fill: '#FBBF24' }}
+                  activeDot={{ r: 4, fill: '2596be' }}
                 />
               </ComposedChart>
             </ResponsiveContainer>
