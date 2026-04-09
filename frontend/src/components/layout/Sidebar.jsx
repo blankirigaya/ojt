@@ -4,19 +4,19 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Package, ShoppingCart, TrendingUp,
-  AlertTriangle, Tags, Truck, LogOut, Activity,
+  AlertTriangle, Tags, Truck, LogOut, Activity, Search
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 
 const NAV_ITEMS = [
   { to: '/',          icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/products',  icon: Package,         label: 'Products'  },
-  { to: '/sales',     icon: ShoppingCart,    label: 'Sales'     },
-  { to: '/forecast',  icon: TrendingUp,      label: 'Forecast'  },
-  { to: '/alerts',    icon: AlertTriangle,   label: 'Alerts'    },
-  { to: '/categories',icon: Tags,            label: 'Categories'},
-  { to: '/suppliers', icon: Truck,           label: 'Suppliers' },
+  { to: '/products',  icon: Package,         label: 'Assets'    },
+  { to: '/sales',     icon: ShoppingCart,    label: 'Staking Providers', badge: '12' },
+  { to: '/forecast',  icon: TrendingUp,      label: 'Staking Calculator' },
+  { to: '/alerts',    icon: AlertTriangle,   label: 'Active Staking', badge: '6', badgeColor: 'bg-brand-500 text-white' },
+  { to: '/categories',icon: Tags,            label: 'Data API'   },
+  { to: '/suppliers', icon: Truck,           label: 'Liquid Staking', badge: 'Beta', badgeColor: 'bg-brand-600/20 text-brand-400' },
 ]
 
 export default function Sidebar() {
@@ -30,66 +30,62 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-56 bg-ink-900 border-r border-ink-700 flex flex-col z-40">
-      {/* Logo */}
-      <div className="px-5 py-5 border-b border-ink-700">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-amber-400 rounded-sm flex items-center justify-center">
-            <Activity size={14} className="text-ink-950" strokeWidth={2.5} />
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-ink-950 border-r border-ink-700 flex flex-col z-40">
+      {/* Search & Logo Area (Mapping closely to the image's top left) */}
+      <div className="px-6 py-6 pl-8">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-8 h-8 flex items-center justify-center border border-ink-600 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.15)]">
+            <Activity size={18} className="text-white relative z-10" strokeWidth={2} />
+            <div className="absolute w-4 h-4 bg-brand-500 rounded-full blur-[8px] opacity-60"></div>
           </div>
-          <div>
-            <div className="font-display font-bold text-sm text-white leading-none">SIFS</div>
-            <div className="font-mono text-[9px] text-steel-400 tracking-widest mt-0.5">INVENTORY SYS</div>
+          <div className="flex items-center gap-1">
+            <div className="font-display font-medium text-lg text-white tracking-wide">Stakent</div>
+            <div className="text-[10px] text-steel-400 mt-1 uppercase tracking-widest leading-none">®</div>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        {NAV_ITEMS.map(({ to, icon: Icon, label, badge, badgeColor }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-150 group ${
+              `flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-200 group ${
                 isActive
-                  ? 'bg-amber-400/10 text-amber-400 border-l-2 border-amber-400 pl-[10px]'
-                  : 'text-steel-400 hover:text-steel-200 hover:bg-ink-800'
+                  ? 'bg-ink-800 text-white shadow-[0_4px_20px_rgba(0,0,0,0.2)]'
+                  : 'text-steel-400 hover:text-white hover:bg-ink-900'
               }`
             }
           >
             {({ isActive }) => (
-              <>
-                <Icon size={15} strokeWidth={isActive ? 2.5 : 2} />
-                <span className="font-mono text-xs tracking-wide">{label}</span>
-              </>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <Icon size={18} strokeWidth={isActive ? 2.5 : 1.5} className={isActive ? 'text-white' : 'text-steel-400 group-hover:text-steel-300'} />
+                  <span className="font-body text-[13px] font-medium tracking-wide">{label}</span>
+                </div>
+                {badge && (
+                  <div className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${badgeColor || 'bg-ink-700 text-steel-400'}`}>
+                    {badge}
+                  </div>
+                )}
+              </div>
             )}
           </NavLink>
         ))}
       </nav>
 
-      {/* User info */}
-      <div className="border-t border-ink-700 p-3">
-        <div className="flex items-center gap-2 px-2 py-2 mb-1">
-          <div className="w-7 h-7 rounded-sm bg-ink-700 flex items-center justify-center">
-            <span className="font-mono text-xs text-amber-400 font-bold">
-              {user?.full_name?.[0]?.toUpperCase() ?? '?'}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-mono text-xs text-steel-200 truncate">{user?.full_name}</div>
-            <div className="font-mono text-[10px] text-steel-400 uppercase tracking-widest">{user?.role}</div>
+      {/* Beta Pro Unlock (Bottom Action Area) */}
+      <div className="p-4 mb-4">
+        <div className="bg-ink-900 border border-ink-700 rounded-2xl p-4 flex items-center gap-3 cursor-pointer hover:border-brand-500 transition-colors">
+          <div className="text-brand-400"><Activity size={16}/></div>
+          <div>
+            <div className="text-sm text-white font-medium">Activate Super</div>
+            <div className="text-[10px] text-steel-400">Unlock all features on Stakent</div>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-steel-400
-                     hover:text-red-400 hover:bg-red-500/5 transition-all duration-150"
-        >
-          <LogOut size={13} />
-          <span className="font-mono text-xs">Sign out</span>
-        </button>
       </div>
     </aside>
   )

@@ -4,31 +4,36 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"Syne"', 'sans-serif'],
+        display: ['Helvetica', 'Arial', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
-        body: ['"DM Sans"', 'sans-serif'],
+        body: ['Helvetica', 'Arial', 'sans-serif'],
       },
       colors: {
         ink: {
-          950: '#080A0E',
-          900: '#0D1117',
-          800: '#161B25',
-          700: '#1E2533',
-          600: '#2A3347',
-          500: '#3D4F6B',
+          950: '#0B0D13', // Deepest background
+          900: '#14151B', // Sidebar / slightly lighter
+          800: '#1A1C24', // Cards
+          700: '#23252E', // Borders
+          600: '#323642', // Stronger Borders/hovers
+          500: '#4B5563', // Muted text
+        },
+        brand: {
+          400: '#9F7AEA',
+          500: '#8B5CF6', // Neon Purple
+          600: '#7C3AED',
         },
         amber: {
-          400: '#2596be',
-          300: '#36fdc89f',
-          500: '#2596be',
+          400: '#8B5CF6', // Remapping old amber to purple to prevent breaking old classes that rely on it temporarily
+          300: '#A78BFA',
+          500: '#7C3AED',
         },
         steel: {
-          400: '#94A3B8',
-          300: '#CBD5E1',
+          400: '#8B8E98', // Muted dashboard text
+          300: '#A1A1AB',
           200: '#E2E8F0',
         },
         danger: '#EF4444',
-        success: '#22C55E',
+        success: '#10B981',
         warning: '#F59E0B',
       },
       animation: {
